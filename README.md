@@ -1,14 +1,14 @@
-# My Collaborative Project
+# Personalized Movie Recommendation Engine
 
-A simple, collaborative project jointly developed by [Your Name] and [Friend’s Name].  
-This repository demonstrates how multiple contributors can work together on GitHub and showcase their contributions on their profiles.
+Overview
+This project is a personalized movie recommendation engine that suggests movies based on a user's unique preferences and ratings. 
+By comparing a user's ratings to public ratings and analyzing patterns in genres, directors, and cast members, the engine generates tailored movie recommendations.
 
-## Purpose
+The system leverages:
 
-The main goal of this project is to:
-- Practice GitHub collaboration workflows (forks, pull requests, and reviews).  
-- Learn best practices for project organization and repository management.  
-- Allow each contributor’s work to be visible on their own GitHub profile.
+User data from platforms like Letterboxd.
+Public ratings and metadata from APIs (e.g., TMDb, IMDb).
+Machine learning techniques for enhanced recommendations.
 
 ## Getting Started
 
