@@ -1,6 +1,6 @@
 # Personalized Movie Recommendation Engine
 
-Overview
+## Overview
 This project is a personalized movie recommendation engine that suggests movies based on a user's unique preferences and ratings. 
 By comparing a user's ratings to public ratings and analyzing patterns in genres, directors, and cast members, the engine generates tailored movie recommendations.
 
