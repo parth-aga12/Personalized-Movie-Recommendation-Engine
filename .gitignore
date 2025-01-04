@@ -1,0 +1,10 @@
+Pip*
+*.ui
+.vscode
+__pycache__
+
+scraper_outputs
+.DS_Store
+
+#virtual environment
+venv
