@@ -1,0 +1,8 @@
+# Main Workflow
+1. Collect user and public ratings, along with movie metadata.
+2. Build the taste profile using either an algorithmic or ML-based approach.
+3. Generate recommendations for unwatched movies using the taste profile.
+4. Rank and return the recommendations.
+
+# Function Descriptions:
+# Each function is modular and focuses on a specific task.
