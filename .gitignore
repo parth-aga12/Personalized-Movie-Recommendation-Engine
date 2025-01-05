@@ -8,3 +8,4 @@ scraper_outputs
 
 #virtual environment
 venv
+.venv/
