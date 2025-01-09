@@ -5,7 +5,8 @@ import time
 import sys
 import os
 import csv
-import json
+from bs4 import BeautifulSoup
+import requests
 
 class ScrapeInstance:
     """
@@ -100,59 +101,63 @@ class ScrapeInstance:
 
         # Create output dir if necessary
         os.makedirs(self.output_path, exist_ok=True)
+        
+        for page in self.lists_to_scrape:
+            print(page)
+            
         self.scrape_all_and_writeout(self.lists_to_scrape, self.Nthreads)
 
         self.endtime = time.time()
 
 
-    def import_from_infile(self, infile):
-        """
-        Imports the lines from a .txt file into List objects. 
-        Each line can contain specific list URLs and option flags (-p or -on) referring to that list.
-        Lines starting with a "#" will be skipped.
+    # def import_from_infile(self, infile):
+    #     """
+    #     Imports the lines from a .txt file into List objects. 
+    #     Each line can contain specific list URLs and option flags (-p or -on) referring to that list.
+    #     Lines starting with a "#" will be skipped.
 
-        Parameters:
-            infile (str): The file name of the input .txt.
-        """
+    #     Parameters:
+    #         infile (str): The file name of the input .txt.
+    #     """
         
-        lines = infile.read().split("\n")
+    #     lines = infile.read().split("\n")
 
-        # Filtering out comments (#) and empty lines
-        final_lines = []
-        for line in lines:
-            if line.startswith("#") or not line.strip():
-                continue
-            else:
-                final_lines.append(line)
+    #     # Filtering out comments (#) and empty lines
+    #     final_lines = []
+    #     for line in lines:
+    #         if line.startswith("#") or not line.strip():
+    #             continue
+    #         else:
+    #             final_lines.append(line)
 
-        self.url_total = len(final_lines)
-        self.url_count = 1
+    #     self.url_total = len(final_lines)
+    #     self.url_count = 1
 
-        print(f"A total of {self.url_total} URLs were read-in from {self.infile.name}!\n")
+    #     print(f"A total of {self.url_total} URLs were read-in from {self.infile.name}!\n")
 
-        for line in final_lines:
-            chunks = line.split(' ')
-            url = [i for i in chunks if ("https://") in i][0]
+    #     for line in final_lines:
+    #         chunks = line.split(' ')
+    #         url = [i for i in chunks if ("https://") in i][0]
 
-            # Check for page option on this line
-            if ("-p" in chunks): 
-                page_options = chunks[chunks.index("-p") + 1]
-            elif ("--pages" in chunks):
-                page_options = chunks[chunks.index("--pages") + 1]
-            else:
-                page_options = self.global_page_options
+    #         # Check for page option on this line
+    #         if ("-p" in chunks): 
+    #             page_options = chunks[chunks.index("-p") + 1]
+    #         elif ("--pages" in chunks):
+    #             page_options = chunks[chunks.index("--pages") + 1]
+    #         else:
+    #             page_options = self.global_page_options
 
-            # Check for output name option on this line
-            if ("-on" in chunks): 
-                output_name = chunks[chunks.index("-on") + 1]
-            elif ("--output_name" in chunks):
-                output_name = chunks[chunks.index("--output_name") + 1]
-            else:
-                output_name = self.global_output_name
+    #         # Check for output name option on this line
+    #         if ("-on" in chunks): 
+    #             output_name = chunks[chunks.index("-on") + 1]
+    #         elif ("--output_name" in chunks):
+    #             output_name = chunks[chunks.index("--output_name") + 1]
+    #         else:
+    #             output_name = self.global_output_name
 
-            self.lists_to_scrape.append(List(url, page_options, output_name, self.global_output_name, self.output_file_extension, 
-                                             self.url_total, self.url_count, self.concat))
-            self.url_count += 1
+    #         self.lists_to_scrape.append(List(url, page_options, output_name, self.global_output_name, self.output_file_extension, 
+    #                                          self.url_total, self.url_count, self.concat))
+    #         self.url_count += 1
 
     def import_from_commandline(self, inputURLs):
         """
@@ -162,12 +167,33 @@ class ScrapeInstance:
             inputURLs (list):   List of strings of all list URLs on the command line.
         """
 
-        self.url_total = len(inputURLs)
+        
+        #TODO Scrape the page in this function and figure out how many pages of lists there are
+        inputURL = inputURLs[0]
+        print(f"input url:{inputURL}")
+        
+        page_response = requests.get(inputURL)
+        
+        page_soup = BeautifulSoup(page_response.content, 'lxml')
+        page_elements = page_soup.find_all('li', class_='paginate-page')
+        
+        if not page_elements:
+            print("ONLY 1 PAGE IN THE LIST")
+            last_page_num = 1
+        else:
+            last_page_num = int(page_elements[-1].find('a').text)
+        
+        inputURL_pages = []
+        for i in range(last_page_num):
+            curr_page_num = i+1
+            inputURL_pages.append(inputURL + "page/" +str(curr_page_num)+ "/")
+            
+            
+        self.url_total = len(inputURL_pages)
         self.url_count = 1
 
-        print(f"A total of {self.url_total} URLs were found!\n")
-
-        for url in inputURLs:
+        #append each list page as a seperate list to the lists_to_scrape attribute 
+        for url in inputURL_pages:
             self.lists_to_scrape.append(List(url, self.global_page_options, self.global_output_name, self.global_output_name, self.output_file_extension, 
                                              self.url_total, self.url_count, self.concat))
             self.url_count += 1
@@ -178,11 +204,11 @@ class ScrapeInstance:
         """
 
         self.concat_lists = []
-        for i, list in enumerate(self.lists_to_scrape):
+        for i, movie_list in enumerate(self.lists_to_scrape):
             if i == 0:
-                self.concat_lists.extend(list.films)
+                self.concat_lists.extend(movie_list.films)
             else:
-                self.concat_lists.extend(list.films[1:])
+                self.concat_lists.extend(movie_list.films[1:])
 
     def scrape_all_and_writeout(self, list_objs, max_workers=4):
         """
@@ -208,20 +234,18 @@ class ScrapeInstance:
 
             self.concatenate_lists()
             
-            # Checks if manual name for concatenated file was given, and otherwise uses a default
-            if self.global_output_name == None:
-                self.global_output_name = "concatenated_lists"
+            self.global_output_name = "concatenated_lists"
 
             # Write out to path
             outpath = os.path.join(self.output_path, self.global_output_name + self.output_file_extension)
-            if self.output_file_extension == ".json":
-                with open(outpath, "w", encoding="utf-8") as jsonf:
-                    jsonf.write(json.dumps(self.concat_lists, indent=4, ensure_ascii=False))
-            else:
-                header = list( self.concat_lists[0].keys() )
-                with open(outpath, 'w', newline="", encoding = "utf-8") as f:
-                    write = csv.DictWriter(f, delimiter=",", fieldnames=header)
-                    write.writeheader()
-                    write.writerows(self.concat_lists)
+            # if self.output_file_extension == ".json":
+            #     with open(outpath, "w", encoding="utf-8") as jsonf:
+            #         jsonf.write(json.dumps(self.concat_lists, indent=4, ensure_ascii=False))
+            # else:
+            header = list( self.concat_lists[0].keys() )
+            with open(outpath, 'w', newline="", encoding = "utf-8") as f:
+                write = csv.DictWriter(f, delimiter=",", fieldnames=header)
+                write.writeheader()
+                write.writerows(self.concat_lists)
             
             return print(f"    Written concatenated lists to {self.global_output_name}{self.output_file_extension}!")
