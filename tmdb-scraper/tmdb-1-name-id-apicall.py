@@ -4,19 +4,20 @@ import json
 import os
 from apikey import MY_API_KEY
 
-csv_file = 'top_rated_movies.csv'
+# FILE NAME
+csv_file = 'first_page_top_rated_movies.csv'
 # Create CSV file and write headers if it doesn't exist
 if not os.path.exists(csv_file):
     with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
-        writer.writerow(['title', 'id', 'release_date', 'vote_average'])
+        writer.writerow(['title', 'id'])
 
 headers = {
     "accept": "application/json",
     "Authorization": f"Bearer {MY_API_KEY}"
 }
-
-for page in range(501, 502):
+# https://developer.themoviedb.org/reference/movie-top-rated-list
+for page in range(1, 2):
     url = f"https://api.themoviedb.org/3/movie/top_rated?language=en-US&page={page}"
     response = requests.get(url, headers=headers)
     data = response.json()
@@ -25,20 +26,10 @@ for page in range(501, 502):
         writer = csv.writer(file)
         if 'results' in data:
             for movie in data['results']:
-                writer.writerow([movie['title'], movie['id'], movie['release_date'], movie['vote_average']])
+                writer.writerow([movie['title'], movie['id']])
         else:
             print(f"No results found for page {page}")
     print(page)
 
-
-
-# url = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1"
-
-# headers = {
-#     "accept": "application/json",
-#     "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNTI0N2UzMGVkMWE0NzExZDAxNmU3MmEzNTUyYTQ4YyIsIm5iZiI6MTczNjAxNjIxNS4zODIwMDAyLCJzdWIiOiI2Nzc5ODE1NzgzMGE4ZjRjYzc2Njk1N2MiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.aryLHuME0O2JL-rfAPnjivV9BsEn6eVi15bSsxHTnCg"
-# }
-
-# response = requests.get(url, headers=headers)
-
-# print(response.text)
+# TO GET MOVIE ID USING NAME:
+# https://developer.themoviedb.org/reference/search-movie
