@@ -6,6 +6,11 @@ __pycache__
 scraper_outputs
 .DS_Store
 tmdb-scraper/apikey.py
+tmdb-scraper/posters/
+tmdb-scraper/output/all-movies-details-final.csv
+tmdb-scraper/output/all-movies-vectors-final.csv
+tmdb-scraper/output/movie-details.csv
+nlp-try.py
 
 #virtual environment
 venv
