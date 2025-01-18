@@ -10,7 +10,6 @@ tmdb-scraper/posters/
 tmdb-scraper/output/all-movies-details-final.csv
 tmdb-scraper/output/all-movies-vectors-final.csv
 tmdb-scraper/output/movie-details.csv
-tmdb-scraper/output/all-movies-FINAL.csv
 nlp-try.py
 
 #virtual environment
